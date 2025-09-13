@@ -25,6 +25,18 @@ export default function Home() {
           </li>
         </ol>
 
+        <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
+  <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
+    7일차 복습: Git & GitHub 완전 정복!
+  </p>
+  // ... (이하 생략 )
+</div>
+
+<div className="relative flex place-items-center before:absolute ...">
+  {/* Next.js 로고 이미지 대신 다른 글자를 넣어봅시다 */}
+  <h1 className="text-6xl font-bold">드디어 완성!</h1>
+</div>
+
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <a
             className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"

@@ -22,7 +22,7 @@ const siteMetadata = {
   instagram: 'https://www.instagram.com',
   medium: 'https://medium.com',
   bluesky: 'https://bsky.app/',
-  locale: 'ko-KR',
+  locale: 'ko-kr',
   // set to true if you want a navbar fixed to the top
   stickyNav: false,
   analytics: {

@@ -48,6 +48,7 @@ export default [
     },
 
     rules: {
+      'react/jsx-no-comment-textnodes': 'off', // <--- 바로 이 한 줄만 추가되었습니다!
       'prettier/prettier': 'error',
       'react/react-in-jsx-scope': 'off',
 

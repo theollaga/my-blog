@@ -8,10 +8,7 @@ export async function GET() {
     return NextResponse.json(config)
   } catch (error) {
     console.error('설정 조회 오류:', error)
-    return NextResponse.json(
-      { error: '설정을 불러올 수 없습니다.' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: '설정을 불러올 수 없습니다.' }, { status: 500 })
   }
 }
 
@@ -22,10 +19,7 @@ export async function POST(request: NextRequest) {
 
     // 기본 유효성 검사
     if (!config.site || !config.categories || !config.footer) {
-      return NextResponse.json(
-        { error: '올바른 설정 형식이 아닙니다.' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: '올바른 설정 형식이 아닙니다.' }, { status: 400 })
     }
 
     saveSiteConfig(config)
@@ -33,9 +27,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, message: '설정이 저장되었습니다.' })
   } catch (error) {
     console.error('설정 저장 오류:', error)
-    return NextResponse.json(
-      { error: '설정을 저장할 수 없습니다.' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: '설정을 저장할 수 없습니다.' }, { status: 500 })
   }
 }

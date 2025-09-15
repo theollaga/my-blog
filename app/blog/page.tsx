@@ -10,21 +10,17 @@ export default async function BlogPage(props: { searchParams: Promise<{ page?: s
   const searchParams = await props.searchParams
   const pageNumber = Number(searchParams.page) || 1
 
-  const { posts, totalPages, currentPage, hasNextPage, hasPrevPage } =
-    await getPostsWithPagination(pageNumber, POSTS_PER_PAGE)
+  const { posts, totalPages, currentPage, hasNextPage, hasPrevPage } = await getPostsWithPagination(
+    pageNumber,
+    POSTS_PER_PAGE
+  )
 
   const pagination = {
     currentPage,
     totalPages,
     hasNextPage,
-    hasPrevPage
+    hasPrevPage,
   }
 
-  return (
-    <UnifiedListLayout
-      posts={posts}
-      pagination={pagination}
-      title="모든 포스트"
-    />
-  )
+  return <UnifiedListLayout posts={posts} pagination={pagination} title="모든 포스트" />
 }

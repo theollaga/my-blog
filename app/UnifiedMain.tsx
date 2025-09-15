@@ -39,9 +39,7 @@ export default function UnifiedMain({ posts }: UnifiedMainProps) {
       {/* 뉴스 그리드 섹션 */}
       <div className="bg-gray-50 py-12 dark:bg-gray-800">
         <div className="mx-auto max-w-7xl px-4">
-          <h2 className="mb-8 text-2xl font-bold text-gray-900 dark:text-white">
-            최신 뉴스
-          </h2>
+          <h2 className="mb-8 text-2xl font-bold text-gray-900 dark:text-white">최신 뉴스</h2>
           <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
             {posts.slice(3, 7).map((post) => (
               <PostCard key={post.id} post={post} variant="grid" />
@@ -53,9 +51,7 @@ export default function UnifiedMain({ posts }: UnifiedMainProps) {
       {/* 하단 뉴스 리스트 섹션 */}
       <div className="bg-white py-12 dark:bg-gray-900">
         <div className="mx-auto max-w-7xl px-4">
-          <h2 className="mb-8 text-2xl font-bold text-gray-900 dark:text-white">
-            더 많은 뉴스
-          </h2>
+          <h2 className="mb-8 text-2xl font-bold text-gray-900 dark:text-white">더 많은 뉴스</h2>
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             {posts.slice(7, 19).map((post) => (
               <PostCard key={post.id} post={post} variant="list" />
@@ -63,7 +59,6 @@ export default function UnifiedMain({ posts }: UnifiedMainProps) {
           </div>
         </div>
       </div>
-
     </div>
   )
 }

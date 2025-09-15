@@ -11,9 +11,9 @@ const Header = () => {
   // 동적 설정 로드
   const config = loadSiteConfig()
 
-  const categories = config.categories.map(cat => ({
+  const categories = config.categories.map((cat) => ({
     name: cat.name,
-    href: `/category/${cat.slug}`
+    href: `/category/${cat.slug}`,
   }))
 
   return (
@@ -30,7 +30,9 @@ const Header = () => {
                     <span className="text-sm font-bold text-white">🏢</span>
                   </div>
                 </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">{config.site.headerTitle}</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {config.site.headerTitle}
+                </div>
               </div>
             </Link>
 

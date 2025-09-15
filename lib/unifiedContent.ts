@@ -3,6 +3,47 @@ import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
 import client from '@/lib/contentfulClient'
 import { Entry } from 'contentful'
 
+// Contentlayer 포스트 타입
+interface ContentlayerPost {
+  slug: string
+  title: string
+  summary?: string
+  date: string
+  tags?: string[]
+  readingTime?: { text: string }
+  [key: string]: unknown
+}
+
+// Rich Text 노드 타입
+interface RichTextNode {
+  nodeType: string
+  content?: RichTextNode[]
+  value?: string
+}
+
+interface RichTextDocument {
+  content: RichTextNode[]
+}
+
+// Contentful 포스트 필드 타입
+interface ContentfulPostFields {
+  title?: string
+  slug?: string
+  content?: RichTextDocument
+  publishedDate?: string
+  tags?: string[]
+  category?: string
+  excerpt?: string
+  description?: string
+  coverImage?: {
+    fields: {
+      file: {
+        url: string
+      }
+    }
+  }
+}
+
 // 통합 포스트 타입 정의
 export interface UnifiedPost {
   id: string
@@ -19,19 +60,19 @@ export interface UnifiedPost {
   coverImage?: string
   readingTime?: string
   // 원본 데이터 참조
-  originalData?: any
+  originalData?: ContentlayerPost | Entry<ContentfulPostFields>
 }
 
 // 무작위 카테고리 할당을 위한 카테고리 배열
 const availableCategories = ['경제', '자동차', '정치', '사회', '문화', '기술']
 
 // Rich Text에서 일반 텍스트 추출 함수
-function extractTextFromRichText(richTextContent: any): string {
+function extractTextFromRichText(richTextContent: RichTextDocument): string {
   if (!richTextContent || !richTextContent.content) {
     return ''
   }
 
-  function extractText(node: any): string {
+  function extractText(node: RichTextNode): string {
     if (node.nodeType === 'text') {
       return node.value || ''
     }
@@ -51,22 +92,51 @@ function inferCategoryFromTitle(title: string): string {
   const titleLower = title.toLowerCase()
 
   // 키워드 기반 카테고리 매핑
-  if (titleLower.includes('economy') || titleLower.includes('경제') || titleLower.includes('market') || titleLower.includes('business')) {
+  if (
+    titleLower.includes('economy') ||
+    titleLower.includes('경제') ||
+    titleLower.includes('market') ||
+    titleLower.includes('business')
+  ) {
     return '경제'
   }
-  if (titleLower.includes('car') || titleLower.includes('자동차') || titleLower.includes('vehicle') || titleLower.includes('auto')) {
+  if (
+    titleLower.includes('car') ||
+    titleLower.includes('자동차') ||
+    titleLower.includes('vehicle') ||
+    titleLower.includes('auto')
+  ) {
     return '자동차'
   }
-  if (titleLower.includes('tech') || titleLower.includes('기술') || titleLower.includes('technology') || titleLower.includes('dev') || titleLower.includes('code')) {
+  if (
+    titleLower.includes('tech') ||
+    titleLower.includes('기술') ||
+    titleLower.includes('technology') ||
+    titleLower.includes('dev') ||
+    titleLower.includes('code')
+  ) {
     return '기술'
   }
-  if (titleLower.includes('culture') || titleLower.includes('문화') || titleLower.includes('art') || titleLower.includes('music')) {
+  if (
+    titleLower.includes('culture') ||
+    titleLower.includes('문화') ||
+    titleLower.includes('art') ||
+    titleLower.includes('music')
+  ) {
     return '문화'
   }
-  if (titleLower.includes('society') || titleLower.includes('사회') || titleLower.includes('social')) {
+  if (
+    titleLower.includes('society') ||
+    titleLower.includes('사회') ||
+    titleLower.includes('social')
+  ) {
     return '사회'
   }
-  if (titleLower.includes('politics') || titleLower.includes('정치') || titleLower.includes('government')) {
+  if (
+    titleLower.includes('politics') ||
+    titleLower.includes('정치') ||
+    titleLower.includes('government')
+  ) {
     return '정치'
   }
 
@@ -74,7 +144,7 @@ function inferCategoryFromTitle(title: string): string {
   let hash = 0
   for (let i = 0; i < title.length; i++) {
     const char = title.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
+    hash = (hash << 5) - hash + char
     hash = hash & hash // 32비트 정수로 변환
   }
   const index = Math.abs(hash) % availableCategories.length
@@ -82,13 +152,13 @@ function inferCategoryFromTitle(title: string): string {
 }
 
 // Contentlayer 데이터를 UnifiedPost로 변환
-export function transformContentlayerPost(post: any): UnifiedPost {
+export function transformContentlayerPost(post: ContentlayerPost): UnifiedPost {
   // 기존 태그에서 카테고리를 찾거나, 제목 기반으로 추론, 아니면 무작위 할당
   let category = 'general'
 
   if (post.tags && post.tags.length > 0) {
     // 기존 태그 중에서 카테고리 찾기
-    const existingCategory = availableCategories.find(cat =>
+    const existingCategory = availableCategories.find((cat) =>
       post.tags.some((tag: string) => tag.toLowerCase().includes(cat.toLowerCase()))
     )
     category = existingCategory || inferCategoryFromTitle(post.title)
@@ -108,12 +178,12 @@ export function transformContentlayerPost(post: any): UnifiedPost {
     summary: post.summary,
     date: post.date,
     readingTime: post.readingTime?.text,
-    originalData: post
+    originalData: post,
   }
 }
 
 // Contentful 데이터를 UnifiedPost로 변환
-export function transformContentfulPost(entry: Entry<any>): UnifiedPost {
+export function transformContentfulPost(entry: Entry<ContentfulPostFields>): UnifiedPost {
   const { fields, sys } = entry
 
   // Contentful 포스트에도 카테고리 추론 로직 적용
@@ -124,7 +194,7 @@ export function transformContentfulPost(entry: Entry<any>): UnifiedPost {
     category = fields.category
   } else if (fields.tags && fields.tags.length > 0) {
     // 태그에서 카테고리 찾기
-    const existingCategory = availableCategories.find(cat =>
+    const existingCategory = availableCategories.find((cat) =>
       fields.tags.some((tag: string) => tag.toLowerCase().includes(cat.toLowerCase()))
     )
     category = existingCategory || inferCategoryFromTitle(fields.title || '')
@@ -166,7 +236,7 @@ export function transformContentfulPost(entry: Entry<any>): UnifiedPost {
     source: 'contentful',
     category,
     coverImage: coverImageUrl,
-    originalData: entry
+    originalData: entry,
   }
 }
 
@@ -176,7 +246,7 @@ export async function fetchContentfulPosts(): Promise<UnifiedPost[]> {
     const entries = await client.getEntries({
       content_type: 'post',
       order: '-sys.createdAt',
-      include: 2  // Asset과 참조 해결을 위해 include 레벨 설정
+      include: 2, // Asset과 참조 해결을 위해 include 레벨 설정
     })
 
     return entries.items.map(transformContentfulPost)
@@ -198,7 +268,7 @@ export function getContentlayerPosts(): UnifiedPost[] {
 export async function getAllUnifiedPosts(): Promise<UnifiedPost[]> {
   const [contentfulPosts, contentlayerPosts] = await Promise.all([
     fetchContentfulPosts(),
-    Promise.resolve(getContentlayerPosts())
+    Promise.resolve(getContentlayerPosts()),
   ])
 
   // 발행일 기준으로 정렬
@@ -212,48 +282,72 @@ export async function getPostsByCategory(category: string): Promise<UnifiedPost[
 
   // URL에서 받은 영어 카테고리를 한글로 변환
   const categoryMapping: Record<string, string> = {
-    'economy': '경제',
-    'automotive': '자동차',
-    'politics': '정치',
-    'society': '사회',
-    'culture': '문화',
-    'tech': '기술'
+    economy: '경제',
+    automotive: '자동차',
+    politics: '정치',
+    society: '사회',
+    culture: '문화',
+    tech: '기술',
   }
 
   const targetCategory = categoryMapping[category] || category
 
-  return allPosts.filter(post => {
+  return allPosts.filter((post) => {
     // 1. 정확한 카테고리 매치
     if (post.category === targetCategory) {
       return true
     }
 
     // 2. 태그에서 매치
-    if (post.tags.some(tag =>
-      tag.toLowerCase().includes(targetCategory.toLowerCase()) ||
-      tag.toLowerCase().includes(category.toLowerCase())
-    )) {
+    if (
+      post.tags.some(
+        (tag) =>
+          tag.toLowerCase().includes(targetCategory.toLowerCase()) ||
+          tag.toLowerCase().includes(category.toLowerCase())
+      )
+    ) {
       return true
     }
 
     // 3. 제목에서 키워드 매치
     const title = post.title.toLowerCase()
-    if (category === 'economy' && (title.includes('economy') || title.includes('경제') || title.includes('market'))) {
+    if (
+      category === 'economy' &&
+      (title.includes('economy') || title.includes('경제') || title.includes('market'))
+    ) {
       return true
     }
-    if (category === 'tech' && (title.includes('tech') || title.includes('기술') || title.includes('code') || title.includes('dev'))) {
+    if (
+      category === 'tech' &&
+      (title.includes('tech') ||
+        title.includes('기술') ||
+        title.includes('code') ||
+        title.includes('dev'))
+    ) {
       return true
     }
-    if (category === 'automotive' && (title.includes('car') || title.includes('자동차') || title.includes('vehicle'))) {
+    if (
+      category === 'automotive' &&
+      (title.includes('car') || title.includes('자동차') || title.includes('vehicle'))
+    ) {
       return true
     }
-    if (category === 'culture' && (title.includes('culture') || title.includes('문화') || title.includes('art'))) {
+    if (
+      category === 'culture' &&
+      (title.includes('culture') || title.includes('문화') || title.includes('art'))
+    ) {
       return true
     }
-    if (category === 'society' && (title.includes('society') || title.includes('사회') || title.includes('social'))) {
+    if (
+      category === 'society' &&
+      (title.includes('society') || title.includes('사회') || title.includes('social'))
+    ) {
       return true
     }
-    if (category === 'politics' && (title.includes('politics') || title.includes('정치') || title.includes('government'))) {
+    if (
+      category === 'politics' &&
+      (title.includes('politics') || title.includes('정치') || title.includes('government'))
+    ) {
       return true
     }
 
@@ -279,6 +373,6 @@ export async function getPostsWithPagination(page: number = 1, postsPerPage: num
     totalPages,
     currentPage: page,
     hasNextPage: page < totalPages,
-    hasPrevPage: page > 1
+    hasPrevPage: page > 1,
   }
 }

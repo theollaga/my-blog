@@ -1,11 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import type { SiteConfig } from '@/lib/siteConfig'
 
-interface AdminPanelProps {}
-
-export default function AdminPanel({}: AdminPanelProps) {
+export default function AdminPanel() {
   const [config, setConfig] = useState<SiteConfig | null>(null)
   const [activeTab, setActiveTab] = useState<'site' | 'categories' | 'footer' | 'company'>('site')
   const [loading, setLoading] = useState(true)
@@ -50,7 +49,7 @@ export default function AdminPanel({}: AdminPanelProps) {
       const response = await fetch('/api/admin/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config)
+        body: JSON.stringify(config),
       })
 
       if (!response.ok) throw new Error('저장 실패')
@@ -70,11 +69,11 @@ export default function AdminPanel({}: AdminPanelProps) {
       id: `category-${Date.now()}`,
       name: '새 카테고리',
       slug: 'new-category',
-      description: ''
+      description: '',
     }
     setConfig({
       ...config,
-      categories: [...config.categories, newCategory]
+      categories: [...config.categories, newCategory],
     })
   }
 
@@ -82,7 +81,7 @@ export default function AdminPanel({}: AdminPanelProps) {
     if (!config) return
     setConfig({
       ...config,
-      categories: config.categories.filter((_, i) => i !== index)
+      categories: config.categories.filter((_, i) => i !== index),
     })
   }
 
@@ -93,26 +92,25 @@ export default function AdminPanel({}: AdminPanelProps) {
       ...newCategories[index],
       [field]: value,
       // slug는 name과 연동
-      ...(field === 'name' ? { slug: value.toLowerCase().replace(/\s+/g, '-') } : {})
+      ...(field === 'name' ? { slug: value.toLowerCase().replace(/\s+/g, '-') } : {}),
     }
     setConfig({
       ...config,
-      categories: newCategories
+      categories: newCategories,
     })
   }
 
   const addFooterLink = (type: 'links' | 'socialLinks') => {
     if (!config) return
-    const newLink = type === 'links'
-      ? { name: '새 링크', url: '' }
-      : { name: '새 소셜링크', url: '', icon: '🔗' }
+    const newLink =
+      type === 'links' ? { name: '새 링크', url: '' } : { name: '새 소셜링크', url: '', icon: '🔗' }
 
     setConfig({
       ...config,
       footer: {
         ...config.footer,
-        [type]: [...config.footer[type], newLink]
-      }
+        [type]: [...config.footer[type], newLink],
+      },
     })
   }
 
@@ -122,12 +120,17 @@ export default function AdminPanel({}: AdminPanelProps) {
       ...config,
       footer: {
         ...config.footer,
-        [type]: config.footer[type].filter((_, i) => i !== index)
-      }
+        [type]: config.footer[type].filter((_, i) => i !== index),
+      },
     })
   }
 
-  const updateFooterLink = (type: 'links' | 'socialLinks', index: number, field: string, value: string) => {
+  const updateFooterLink = (
+    type: 'links' | 'socialLinks',
+    index: number,
+    field: string,
+    value: string
+  ) => {
     if (!config) return
     const newLinks = [...config.footer[type]]
     newLinks[index] = { ...newLinks[index], [field]: value }
@@ -135,14 +138,14 @@ export default function AdminPanel({}: AdminPanelProps) {
       ...config,
       footer: {
         ...config.footer,
-        [type]: newLinks
-      }
+        [type]: newLinks,
+      },
     })
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-xl">설정 로딩 중...</div>
       </div>
     )
@@ -150,7 +153,7 @@ export default function AdminPanel({}: AdminPanelProps) {
 
   if (!config) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-xl text-red-600">설정을 불러올 수 없습니다.</div>
       </div>
     )
@@ -159,24 +162,21 @@ export default function AdminPanel({}: AdminPanelProps) {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       {/* 헤더 */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <header className="border-b bg-white shadow-sm">
+        <div className="mx-auto max-w-7xl px-4 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">사이트 관리자</h1>
             <div className="flex gap-4">
               <button
                 onClick={saveConfig}
                 disabled={saving}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
               >
                 {saving ? '저장 중...' : '설정 저장'}
               </button>
-              <a
-                href="/"
-                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-              >
+              <Link href="/" className="rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-700">
                 사이트로 돌아가기
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -184,18 +184,20 @@ export default function AdminPanel({}: AdminPanelProps) {
 
       {/* 메시지 */}
       {message && (
-        <div className={`max-w-7xl mx-auto px-4 py-2`}>
-          <div className={`p-3 rounded ${
-            message.type === 'success'
-              ? 'bg-green-100 text-green-800 border border-green-200'
-              : 'bg-red-100 text-red-800 border border-red-200'
-          }`}>
+        <div className={`mx-auto max-w-7xl px-4 py-2`}>
+          <div
+            className={`rounded p-3 ${
+              message.type === 'success'
+                ? 'border border-green-200 bg-green-100 text-green-800'
+                : 'border border-red-200 bg-red-100 text-red-800'
+            }`}
+          >
             {message.text}
           </div>
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="mx-auto max-w-7xl px-4 py-6">
         {/* 탭 네비게이션 */}
         <div className="mb-6">
           <div className="border-b border-gray-200">
@@ -204,15 +206,17 @@ export default function AdminPanel({}: AdminPanelProps) {
                 { key: 'site', label: '사이트 설정' },
                 { key: 'categories', label: '카테고리 관리' },
                 { key: 'footer', label: '푸터 설정' },
-                { key: 'company', label: '회사 정보' }
+                { key: 'company', label: '회사 정보' },
               ].map((tab) => (
                 <button
                   key={tab.key}
-                  onClick={() => setActiveTab(tab.key as any)}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  onClick={() =>
+                    setActiveTab(tab.key as 'site' | 'categories' | 'footer' | 'company')
+                  }
+                  className={`border-b-2 px-1 py-2 text-sm font-medium ${
                     activeTab === tab.key
                       ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                   }`}
                 >
                   {tab.label}
@@ -224,82 +228,109 @@ export default function AdminPanel({}: AdminPanelProps) {
 
         {/* 사이트 설정 탭 */}
         {activeTab === 'site' && (
-          <div className="bg-white rounded-lg shadow p-6 text-gray-900">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900">기본 사이트 설정</h2>
+          <div className="rounded-lg bg-white p-6 text-gray-900 shadow">
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">기본 사이트 설정</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="site-title"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   사이트 제목
                 </label>
                 <input
+                  id="site-title"
                   type="text"
                   value={config.site.title}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    site: { ...config.site, title: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      site: { ...config.site, title: e.target.value },
+                    })
+                  }
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="header-title"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   헤더 제목
                 </label>
                 <input
+                  id="header-title"
                   type="text"
                   value={config.site.headerTitle}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    site: { ...config.site, headerTitle: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      site: { ...config.site, headerTitle: e.target.value },
+                    })
+                  }
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="site-description"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   사이트 설명
                 </label>
                 <textarea
+                  id="site-description"
                   value={config.site.description}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    site: { ...config.site, description: e.target.value }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      site: { ...config.site, description: e.target.value },
+                    })
+                  }
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="site-author"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   작성자
                 </label>
                 <input
+                  id="site-author"
                   type="text"
                   value={config.site.author}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    site: { ...config.site, author: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      site: { ...config.site, author: e.target.value },
+                    })
+                  }
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="site-url" className="mb-2 block text-sm font-medium text-gray-700">
                   사이트 URL
                 </label>
                 <input
+                  id="site-url"
                   type="url"
                   value={config.site.siteUrl}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    site: { ...config.site, siteUrl: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      site: { ...config.site, siteUrl: e.target.value },
+                    })
+                  }
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
             </div>
@@ -308,12 +339,12 @@ export default function AdminPanel({}: AdminPanelProps) {
 
         {/* 카테고리 관리 탭 */}
         {activeTab === 'categories' && (
-          <div className="bg-white rounded-lg shadow p-6 text-gray-900">
-            <div className="flex justify-between items-center mb-4">
+          <div className="rounded-lg bg-white p-6 text-gray-900 shadow">
+            <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-900">카테고리 관리</h2>
               <button
                 onClick={addCategory}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
               >
                 카테고리 추가
               </button>
@@ -321,48 +352,60 @@ export default function AdminPanel({}: AdminPanelProps) {
 
             <div className="space-y-4">
               {config.categories.map((category, index) => (
-                <div key={category.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div key={category.id} className="rounded-lg border border-gray-200 p-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor={`category-name-${index}`}
+                        className="mb-1 block text-sm font-medium text-gray-700"
+                      >
                         카테고리명
                       </label>
                       <input
+                        id={`category-name-${index}`}
                         type="text"
                         value={category.name}
                         onChange={(e) => updateCategory(index, 'name', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor={`category-slug-${index}`}
+                        className="mb-1 block text-sm font-medium text-gray-700"
+                      >
                         URL Slug
                       </label>
                       <input
+                        id={`category-slug-${index}`}
                         type="text"
                         value={category.slug}
                         onChange={(e) => updateCategory(index, 'slug', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor={`category-description-${index}`}
+                        className="mb-1 block text-sm font-medium text-gray-700"
+                      >
                         설명
                       </label>
                       <input
+                        id={`category-description-${index}`}
                         type="text"
                         value={category.description || ''}
                         onChange={(e) => updateCategory(index, 'description', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       />
                     </div>
 
                     <div className="flex items-end">
                       <button
                         onClick={() => removeCategory(index)}
-                        className="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                        className="rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
                       >
                         삭제
                       </button>
@@ -376,32 +419,35 @@ export default function AdminPanel({}: AdminPanelProps) {
 
         {/* 푸터 설정 탭 */}
         {activeTab === 'footer' && (
-          <div className="bg-white rounded-lg shadow p-6 text-gray-900">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900">푸터 설정</h2>
+          <div className="rounded-lg bg-white p-6 text-gray-900 shadow">
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">푸터 설정</h2>
 
             {/* 푸터 텍스트 */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="footer-text" className="mb-2 block text-sm font-medium text-gray-700">
                 푸터 텍스트
               </label>
               <input
+                id="footer-text"
                 type="text"
                 value={config.footer.text}
-                onChange={(e) => setConfig({
-                  ...config,
-                  footer: { ...config.footer, text: e.target.value }
-                })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    footer: { ...config.footer, text: e.target.value },
+                  })
+                }
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
 
             {/* 일반 링크 */}
             <div className="mb-6">
-              <div className="flex justify-between items-center mb-3">
+              <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-lg font-medium text-gray-900">일반 링크</h3>
                 <button
                   onClick={() => addFooterLink('links')}
-                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
                 >
                   링크 추가
                 </button>
@@ -409,24 +455,27 @@ export default function AdminPanel({}: AdminPanelProps) {
 
               <div className="space-y-2">
                 {config.footer.links.map((link, index) => (
-                  <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-3 border rounded">
+                  <div
+                    key={index}
+                    className="grid grid-cols-1 gap-4 rounded border p-3 md:grid-cols-3"
+                  >
                     <input
                       type="text"
                       placeholder="링크명"
                       value={link.name}
                       onChange={(e) => updateFooterLink('links', index, 'name', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                      className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                     <input
                       type="url"
                       placeholder="URL"
                       value={link.url}
                       onChange={(e) => updateFooterLink('links', index, 'url', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                      className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                     <button
                       onClick={() => removeFooterLink('links', index)}
-                      className="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                      className="rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
                     >
                       삭제
                     </button>
@@ -437,11 +486,11 @@ export default function AdminPanel({}: AdminPanelProps) {
 
             {/* 소셜 링크 */}
             <div>
-              <div className="flex justify-between items-center mb-3">
+              <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-lg font-medium text-gray-900">소셜 미디어 링크</h3>
                 <button
                   onClick={() => addFooterLink('socialLinks')}
-                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
                 >
                   소셜링크 추가
                 </button>
@@ -449,31 +498,40 @@ export default function AdminPanel({}: AdminPanelProps) {
 
               <div className="space-y-2">
                 {config.footer.socialLinks.map((link, index) => (
-                  <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-3 border rounded">
+                  <div
+                    key={index}
+                    className="grid grid-cols-1 gap-4 rounded border p-3 md:grid-cols-4"
+                  >
                     <input
                       type="text"
                       placeholder="서비스명"
                       value={link.name}
-                      onChange={(e) => updateFooterLink('socialLinks', index, 'name', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                      onChange={(e) =>
+                        updateFooterLink('socialLinks', index, 'name', e.target.value)
+                      }
+                      className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                     <input
                       type="url"
                       placeholder="URL"
                       value={link.url}
-                      onChange={(e) => updateFooterLink('socialLinks', index, 'url', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                      onChange={(e) =>
+                        updateFooterLink('socialLinks', index, 'url', e.target.value)
+                      }
+                      className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                     <input
                       type="text"
                       placeholder="아이콘 (이모지)"
                       value={link.icon || ''}
-                      onChange={(e) => updateFooterLink('socialLinks', index, 'icon', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                      onChange={(e) =>
+                        updateFooterLink('socialLinks', index, 'icon', e.target.value)
+                      }
+                      className="rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                     <button
                       onClick={() => removeFooterLink('socialLinks', index)}
-                      className="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                      className="rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
                     >
                       삭제
                     </button>
@@ -486,157 +544,217 @@ export default function AdminPanel({}: AdminPanelProps) {
 
         {/* 회사 정보 탭 */}
         {activeTab === 'company' && (
-          <div className="bg-white rounded-lg shadow p-6 text-gray-900">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900">회사 정보</h2>
+          <div className="rounded-lg bg-white p-6 text-gray-900 shadow">
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">회사 정보</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="company-name"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   회사명
                 </label>
                 <input
+                  id="company-name"
                   type="text"
                   value={config.company.name}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    company: { ...config.company, name: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      company: { ...config.company, name: e.target.value },
+                    })
+                  }
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="company-publication"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   제호
                 </label>
                 <input
+                  id="company-publication"
                   type="text"
                   value={config.company.publication}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    company: { ...config.company, publication: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      company: { ...config.company, publication: e.target.value },
+                    })
+                  }
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="company-address"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   주소
                 </label>
                 <input
+                  id="company-address"
                   type="text"
                   value={config.company.address}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    company: { ...config.company, address: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      company: { ...config.company, address: e.target.value },
+                    })
+                  }
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="company-phone"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   대표전화
                 </label>
                 <input
+                  id="company-phone"
                   type="tel"
                   value={config.company.phone}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    company: { ...config.company, phone: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      company: { ...config.company, phone: e.target.value },
+                    })
+                  }
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="company-registration"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   등록번호
                 </label>
                 <input
+                  id="company-registration"
                   type="text"
                   value={config.company.registrationNumber}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    company: { ...config.company, registrationNumber: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      company: { ...config.company, registrationNumber: e.target.value },
+                    })
+                  }
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="company-registration-date"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   등록일
                 </label>
                 <input
+                  id="company-registration-date"
                   type="date"
                   value={config.company.registrationDate}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    company: { ...config.company, registrationDate: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      company: { ...config.company, registrationDate: e.target.value },
+                    })
+                  }
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="company-publication-date"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   발행일
                 </label>
                 <input
+                  id="company-publication-date"
                   type="date"
                   value={config.company.publicationDate}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    company: { ...config.company, publicationDate: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      company: { ...config.company, publicationDate: e.target.value },
+                    })
+                  }
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="company-editor"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   발행·편집인
                 </label>
                 <input
+                  id="company-editor"
                   type="text"
                   value={config.company.editorInChief}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    company: { ...config.company, editorInChief: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      company: { ...config.company, editorInChief: e.target.value },
+                    })
+                  }
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="company-youth-officer"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   청소년보호책임자
                 </label>
                 <input
+                  id="company-youth-officer"
                   type="text"
                   value={config.company.youthProtectionOfficer}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    company: { ...config.company, youthProtectionOfficer: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      company: { ...config.company, youthProtectionOfficer: e.target.value },
+                    })
+                  }
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="company-email"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   문의 및 제보 이메일
                 </label>
                 <input
+                  id="company-email"
                   type="email"
                   value={config.company.contactEmail}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    company: { ...config.company, contactEmail: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      company: { ...config.company, contactEmail: e.target.value },
+                    })
+                  }
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
             </div>

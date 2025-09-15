@@ -3,14 +3,44 @@ import client from '@/lib/contentfulClient'
 import { formatDate } from 'pliny/utils/formatDate'
 import siteMetadata from '@/data/siteMetadata'
 import { Entry } from 'contentful'
+import Image from 'next/image'
+
+// Contentful Rich Text 노드 타입 정의
+interface RichTextNode {
+  nodeType: string
+  content?: RichTextNode[]
+  value?: string
+  marks?: Array<{ type: string }>
+}
+
+interface RichTextDocument {
+  content: RichTextNode[]
+}
+
+// Contentful 포스트 필드 타입
+interface ContentfulPostFields {
+  title: string
+  content: RichTextDocument
+  publishedDate?: string
+  tags?: string[]
+  excerpt?: string
+  description?: string
+  coverImage?: {
+    fields: {
+      file: {
+        url: string
+      }
+    }
+  }
+}
 
 // Rich Text 렌더링 함수
-function renderRichText(richTextContent: any): string {
+function renderRichText(richTextContent: RichTextDocument): string {
   if (!richTextContent || !richTextContent.content) {
     return ''
   }
 
-  function renderNode(node: any): string {
+  function renderNode(node: RichTextNode): string {
     if (node.nodeType === 'text') {
       let text = node.value || ''
       if (node.marks) {
@@ -87,10 +117,10 @@ function renderRichText(richTextContent: any): string {
 }
 
 // 특정 포스트 가져오기
-async function getContentfulPost(id: string): Promise<Entry<any> | null> {
+async function getContentfulPost(id: string): Promise<Entry<ContentfulPostFields> | null> {
   try {
     const entry = await client.getEntry(id, {
-      include: 2
+      include: 2,
     })
     return entry
   } catch (error) {
@@ -133,23 +163,22 @@ export default async function ContentfulPostPage({ params }: PageProps) {
         <header className="mb-8">
           {coverImageUrl && (
             <div className="mb-8 aspect-video overflow-hidden rounded-lg">
-              <img
+              <Image
                 src={coverImageUrl}
                 alt={fields.title}
+                width={800}
+                height={450}
                 className="h-full w-full object-cover"
               />
             </div>
           )}
 
-
-          <h1 className="mb-4 text-3xl font-bold text-gray-900 dark:text-white lg:text-4xl">
+          <h1 className="mb-4 text-3xl font-bold text-gray-900 lg:text-4xl dark:text-white">
             {fields.title}
           </h1>
 
           <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-            <time>
-              {formatDate(fields.publishedDate || sys.createdAt, siteMetadata.locale)}
-            </time>
+            <time>{formatDate(fields.publishedDate || sys.createdAt, siteMetadata.locale)}</time>
             {fields.tags && fields.tags.length > 0 && (
               <div className="flex gap-2">
                 {fields.tags.map((tag: string, index: number) => (
@@ -167,7 +196,7 @@ export default async function ContentfulPostPage({ params }: PageProps) {
 
         {/* 본문 */}
         <div
-          className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 prose-p:text-gray-700 dark:prose-headings:text-white dark:prose-p:text-gray-300"
+          className="prose prose-lg dark:prose-invert prose-headings:text-gray-900 prose-p:text-gray-700 dark:prose-headings:text-white dark:prose-p:text-gray-300 max-w-none"
           dangerouslySetInnerHTML={{ __html: content }}
         />
       </article>
@@ -182,12 +211,12 @@ export async function generateMetadata({ params }: PageProps) {
 
   if (!post) {
     return {
-      title: 'Post Not Found'
+      title: 'Post Not Found',
     }
   }
 
   return {
     title: post.fields.title,
-    description: post.fields.excerpt || post.fields.description || '콘텐츠를 확인해보세요.'
+    description: post.fields.excerpt || post.fields.description || '콘텐츠를 확인해보세요.',
   }
 }

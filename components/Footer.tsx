@@ -5,7 +5,7 @@ import { loadSiteConfig } from '@/lib/siteConfig'
 export default function Footer() {
   const config = loadSiteConfig()
   return (
-    <footer className="bg-gray-900 text-white border-t border-gray-700">
+    <footer className="border-t border-gray-700 bg-gray-900 text-white">
       <div className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* 로고 및 회사 정보 */}
@@ -32,7 +32,11 @@ export default function Footer() {
             <h3 className="mb-4 text-lg font-semibold text-white">카테고리</h3>
             <div className="space-y-2 text-sm text-gray-400">
               {config.categories.map((category) => (
-                <Link key={category.id} href={`/category/${category.slug}`} className="block hover:text-white">
+                <Link
+                  key={category.id}
+                  href={`/category/${category.slug}`}
+                  className="block hover:text-white"
+                >
                   {category.name}
                 </Link>
               ))}
@@ -86,7 +90,8 @@ export default function Footer() {
                 <span className="text-white">발행·편집인:</span> {config.company.editorInChief}
               </div>
               <div className="mb-2">
-                <span className="text-white">청소년보호책임자:</span> {config.company.youthProtectionOfficer}
+                <span className="text-white">청소년보호책임자:</span>{' '}
+                {config.company.youthProtectionOfficer}
               </div>
               <div>
                 <span className="text-white">문의 및 제보:</span> {config.company.contactEmail}

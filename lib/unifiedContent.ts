@@ -274,6 +274,12 @@ export function transformContentfulPost(entry: Entry<ContentfulPostSkeleton>): U
 
 // Contentful에서 포스트 가져오기
 export async function fetchContentfulPosts(): Promise<UnifiedPost[]> {
+  // 환경변수가 없는 경우 빈 배열 반환 (배포 환경 대응)
+  if (!process.env.CONTENTFUL_SPACE_ID || !process.env.CONTENTFUL_ACCESS_TOKEN) {
+    console.log('Contentful 환경변수가 설정되지 않음 - 빈 배열 반환')
+    return []
+  }
+
   try {
     const entries = await client.getEntries({
       content_type: 'post',

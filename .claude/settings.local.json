@@ -10,7 +10,8 @@
       "Bash(npm run build:*)",
       "Bash(npx prettier:*)",
       "Bash(netstat:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

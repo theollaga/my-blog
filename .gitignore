@@ -45,3 +45,9 @@ yarn-error.log*
 
 # Contentlayer
 .contentlayer
+
+# 관리자 페이지 및 설정 (로컬 PC 전용)
+# /app/admin/
+# /app/api/admin/
+/config/
+# /lib/siteConfig.ts

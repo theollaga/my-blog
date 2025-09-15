@@ -5,16 +5,16 @@ import Link from './Link'
 import MobileNav from './MobileNav'
 import ThemeSwitch from './ThemeSwitch'
 import SearchButton from './SearchButton'
+import { loadSiteConfig } from '@/lib/siteConfig'
 
 const Header = () => {
-  const categories = [
-    { name: '경제', href: '/tags/economy' },
-    { name: '자동차', href: '/tags/automotive' },
-    { name: '정치', href: '/tags/politics' },
-    { name: '사회', href: '/tags/society' },
-    { name: '문화', href: '/tags/culture' },
-    { name: '기술', href: '/tags/tech' },
-  ]
+  // 동적 설정 로드
+  const config = loadSiteConfig()
+
+  const categories = config.categories.map(cat => ({
+    name: cat.name,
+    href: `/category/${cat.slug}`
+  }))
 
   return (
     <>
@@ -30,7 +30,7 @@ const Header = () => {
                     <span className="text-sm font-bold text-white">🏢</span>
                   </div>
                 </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">이코노믹글</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">{config.site.headerTitle}</div>
               </div>
             </Link>
 
@@ -38,10 +38,6 @@ const Header = () => {
             <div className="flex items-center space-x-4">
               <SearchButton />
               <ThemeSwitch />
-              <div className="hidden space-x-4 text-sm sm:flex">
-                <span className="text-gray-500 dark:text-gray-400">광고</span>
-                <span className="text-gray-500 dark:text-gray-400">구독자</span>
-              </div>
               <MobileNav />
             </div>
           </div>

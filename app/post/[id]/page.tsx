@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import client from '@/lib/contentfulClient'
 import { formatDate } from 'pliny/utils/formatDate'
 import siteMetadata from '@/data/siteMetadata'
-import { Entry } from 'contentful'
+import { Entry, EntrySkeletonType } from 'contentful'
 import Image from 'next/image'
 
 // Contentful Rich Text 노드 타입 정의
@@ -17,18 +17,21 @@ interface RichTextDocument {
   content: RichTextNode[]
 }
 
-// Contentful 포스트 필드 타입
-interface ContentfulPostFields {
-  title: string
-  content: RichTextDocument
-  publishedDate?: string
-  tags?: string[]
-  excerpt?: string
-  description?: string
-  coverImage?: {
-    fields: {
-      file: {
-        url: string
+// Contentful 포스트 skeleton 타입
+interface ContentfulPostSkeleton extends EntrySkeletonType {
+  contentTypeId: 'post'
+  fields: {
+    title: string
+    content: RichTextDocument
+    publishedDate?: string
+    tags?: string[]
+    excerpt?: string
+    description?: string
+    coverImage?: {
+      fields: {
+        file: {
+          url: string
+        }
       }
     }
   }
@@ -117,12 +120,12 @@ function renderRichText(richTextContent: RichTextDocument): string {
 }
 
 // 특정 포스트 가져오기
-async function getContentfulPost(id: string): Promise<Entry<ContentfulPostFields> | null> {
+async function getContentfulPost(id: string): Promise<Entry<ContentfulPostSkeleton> | null> {
   try {
     const entry = await client.getEntry(id, {
       include: 2,
     })
-    return entry
+    return entry as unknown as Entry<ContentfulPostSkeleton>
   } catch (error) {
     console.error('Contentful 포스트 fetch 오류:', error)
     return null
@@ -144,13 +147,14 @@ export default async function ContentfulPostPage({ params }: PageProps) {
   }
 
   const { fields, sys } = post
-  const content = renderRichText(fields.content)
+  const content = renderRichText(fields.content as unknown as RichTextDocument)
 
   // coverImage 안전하게 처리
-  let coverImageUrl = null
+  let coverImageUrl: string | null = null
   try {
-    if (fields.coverImage && fields.coverImage.fields && fields.coverImage.fields.file) {
-      coverImageUrl = `https:${fields.coverImage.fields.file.url}`
+    const coverImage = fields.coverImage as unknown as { fields: { file: { url: string } } }
+    if (coverImage && coverImage.fields && coverImage.fields.file) {
+      coverImageUrl = `https:${coverImage.fields.file.url}`
     }
   } catch (e) {
     coverImageUrl = null
@@ -165,7 +169,7 @@ export default async function ContentfulPostPage({ params }: PageProps) {
             <div className="mb-8 aspect-video overflow-hidden rounded-lg">
               <Image
                 src={coverImageUrl}
-                alt={fields.title}
+                alt={fields.title as unknown as string}
                 width={800}
                 height={450}
                 className="h-full w-full object-cover"
@@ -174,23 +178,29 @@ export default async function ContentfulPostPage({ params }: PageProps) {
           )}
 
           <h1 className="mb-4 text-3xl font-bold text-gray-900 lg:text-4xl dark:text-white">
-            {fields.title}
+            {fields.title as unknown as string}
           </h1>
 
           <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-            <time>{formatDate(fields.publishedDate || sys.createdAt, siteMetadata.locale)}</time>
-            {fields.tags && fields.tags.length > 0 && (
-              <div className="flex gap-2">
-                {fields.tags.map((tag: string, index: number) => (
-                  <span
-                    key={index}
-                    className="rounded bg-gray-100 px-2 py-1 text-xs dark:bg-gray-800"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
+            <time>
+              {formatDate(
+                (fields.publishedDate as unknown as string) || sys.createdAt,
+                siteMetadata.locale
+              )}
+            </time>
+            {(fields.tags as unknown as string[]) &&
+              (fields.tags as unknown as string[]).length > 0 && (
+                <div className="flex gap-2">
+                  {(fields.tags as unknown as string[]).map((tag: string, index: number) => (
+                    <span
+                      key={index}
+                      className="rounded bg-gray-100 px-2 py-1 text-xs dark:bg-gray-800"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
           </div>
         </header>
 
@@ -216,7 +226,10 @@ export async function generateMetadata({ params }: PageProps) {
   }
 
   return {
-    title: post.fields.title,
-    description: post.fields.excerpt || post.fields.description || '콘텐츠를 확인해보세요.',
+    title: post.fields.title as unknown as string,
+    description:
+      (post.fields.excerpt as unknown as string) ||
+      (post.fields.description as unknown as string) ||
+      '콘텐츠를 확인해보세요.',
   }
 }

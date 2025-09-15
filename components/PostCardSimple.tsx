@@ -57,7 +57,7 @@ export default function PostCardSimple({
               <p className="mb-2 line-clamp-2 text-sm text-gray-200">{post.excerpt}</p>
             )}
             <time className="text-sm text-gray-300">
-              {formatDate(post.publishedAt, siteMetadata.locale)}
+              {formatDate(post.publishedAt.toString(), siteMetadata.locale)}
             </time>
           </div>
         </Link>
@@ -128,7 +128,7 @@ export default function PostCardSimple({
             </h3>
             <p className="line-clamp-2 text-xs text-gray-600 dark:text-gray-400">{post.excerpt}</p>
             <time className="text-xs text-gray-500 dark:text-gray-400">
-              {formatDate(post.publishedAt, siteMetadata.locale)}
+              {formatDate(post.publishedAt.toString(), siteMetadata.locale)}
             </time>
           </div>
         </Link>

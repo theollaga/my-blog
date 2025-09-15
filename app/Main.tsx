@@ -9,6 +9,8 @@ interface BlogPost {
   slug: string
   title: string
   date?: string
+  tags?: string[]
+  summary?: string
   [key: string]: unknown
 }
 
@@ -157,7 +159,7 @@ export default function Home({ posts, contentfulPosts = [] }: MainProps) {
                     <Link href={`/blog/${slug}`}>{title}</Link>
                   </h3>
                   <time className="text-xs text-gray-500 dark:text-gray-400">
-                    {formatDate(date, siteMetadata.locale)}
+                    {formatDate(date!, siteMetadata.locale)}
                   </time>
                 </article>
               )
@@ -189,7 +191,7 @@ export default function Home({ posts, contentfulPosts = [] }: MainProps) {
                       <Link href={`/blog/${slug}`}>{title}</Link>
                     </h3>
                     <time className="text-xs text-gray-500 dark:text-gray-400">
-                      {formatDate(date, siteMetadata.locale)}
+                      {formatDate(date!, siteMetadata.locale)}
                     </time>
                   </div>
                 </article>

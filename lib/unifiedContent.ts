@@ -1,7 +1,7 @@
 import { allBlogs } from 'contentlayer/generated'
 import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
 import client from '@/lib/contentfulClient'
-import { Entry } from 'contentful'
+import { Entry, EntrySkeletonType } from 'contentful'
 
 // Contentlayer 포스트 타입
 interface ContentlayerPost {
@@ -44,6 +44,28 @@ interface ContentfulPostFields {
   }
 }
 
+// Contentful 포스트 스켈레톤 타입
+interface ContentfulPostSkeleton extends EntrySkeletonType {
+  contentTypeId: 'post'
+  fields: {
+    title: string
+    slug?: string
+    content?: RichTextDocument
+    publishedDate?: string
+    tags?: string[]
+    category?: string
+    excerpt?: string
+    description?: string
+    coverImage?: {
+      fields: {
+        file: {
+          url: string
+        }
+      }
+    }
+  }
+}
+
 // 통합 포스트 타입 정의
 export interface UnifiedPost {
   id: string
@@ -60,7 +82,7 @@ export interface UnifiedPost {
   coverImage?: string
   readingTime?: string
   // 원본 데이터 참조
-  originalData?: ContentlayerPost | Entry<ContentfulPostFields>
+  originalData?: ContentlayerPost | Entry<ContentfulPostSkeleton>
 }
 
 // 무작위 카테고리 할당을 위한 카테고리 배열
@@ -159,7 +181,7 @@ export function transformContentlayerPost(post: ContentlayerPost): UnifiedPost {
   if (post.tags && post.tags.length > 0) {
     // 기존 태그 중에서 카테고리 찾기
     const existingCategory = availableCategories.find((cat) =>
-      post.tags.some((tag: string) => tag.toLowerCase().includes(cat.toLowerCase()))
+      post.tags!.some((tag: string) => tag.toLowerCase().includes(cat.toLowerCase()))
     )
     category = existingCategory || inferCategoryFromTitle(post.title)
   } else {
@@ -183,7 +205,7 @@ export function transformContentlayerPost(post: ContentlayerPost): UnifiedPost {
 }
 
 // Contentful 데이터를 UnifiedPost로 변환
-export function transformContentfulPost(entry: Entry<ContentfulPostFields>): UnifiedPost {
+export function transformContentfulPost(entry: Entry<ContentfulPostSkeleton>): UnifiedPost {
   const { fields, sys } = entry
 
   // Contentful 포스트에도 카테고리 추론 로직 적용
@@ -191,24 +213,27 @@ export function transformContentfulPost(entry: Entry<ContentfulPostFields>): Uni
 
   if (fields.category) {
     // Contentful에서 카테고리가 직접 설정된 경우
-    category = fields.category
-  } else if (fields.tags && fields.tags.length > 0) {
+    category = fields.category as unknown as string
+  } else if (fields.tags && (fields.tags as unknown as string[]).length > 0) {
     // 태그에서 카테고리 찾기
     const existingCategory = availableCategories.find((cat) =>
-      fields.tags.some((tag: string) => tag.toLowerCase().includes(cat.toLowerCase()))
+      (fields.tags as unknown as string[]).some((tag: string) =>
+        tag.toLowerCase().includes(cat.toLowerCase())
+      )
     )
-    category = existingCategory || inferCategoryFromTitle(fields.title || '')
+    category = existingCategory || inferCategoryFromTitle((fields.title as unknown as string) || '')
   } else {
     // 제목 기반 카테고리 추론
-    category = inferCategoryFromTitle(fields.title || '')
+    category = inferCategoryFromTitle((fields.title as unknown as string) || '')
   }
 
   // excerpt 생성 - content에서 텍스트 추출하여 요약 생성
-  let excerpt = fields.excerpt || fields.description || ''
+  let excerpt =
+    (fields.excerpt as unknown as string) || (fields.description as unknown as string) || ''
   if (!excerpt && fields.content) {
     // Rich Text에서 일반 텍스트 추출하여 요약 생성
     try {
-      const textContent = extractTextFromRichText(fields.content)
+      const textContent = extractTextFromRichText(fields.content as unknown as RichTextDocument)
       excerpt = textContent.substring(0, 150) + (textContent.length > 150 ? '...' : '')
     } catch (e) {
       excerpt = fields.title ? `${fields.title}에 대한 내용입니다.` : '내용을 확인해보세요.'
@@ -216,10 +241,17 @@ export function transformContentfulPost(entry: Entry<ContentfulPostFields>): Uni
   }
 
   // coverImage 안전하게 처리
-  let coverImageUrl = null
+  let coverImageUrl: string | null = null
   try {
-    if (fields.coverImage && fields.coverImage.fields && fields.coverImage.fields.file) {
-      coverImageUrl = `https:${fields.coverImage.fields.file.url}`
+    if (
+      fields.coverImage &&
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (fields.coverImage as any).fields &&
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (fields.coverImage as any).fields.file
+    ) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      coverImageUrl = `https:${(fields.coverImage as any).fields.file.url}`
     }
   } catch (e) {
     console.log('coverImage 처리 오류:', e)
@@ -228,14 +260,14 @@ export function transformContentfulPost(entry: Entry<ContentfulPostFields>): Uni
 
   return {
     id: sys.id,
-    title: fields.title || '',
-    slug: fields.slug || sys.id,
+    title: (fields.title as unknown as string) || '',
+    slug: (fields.slug as unknown as string) || sys.id,
     excerpt,
-    publishedAt: new Date(fields.publishedDate || sys.createdAt),
-    tags: fields.tags || [],
+    publishedAt: new Date((fields.publishedDate as unknown as string) || sys.createdAt),
+    tags: (fields.tags as unknown as string[]) || [],
     source: 'contentful',
     category,
-    coverImage: coverImageUrl,
+    coverImage: coverImageUrl || undefined,
     originalData: entry,
   }
 }
@@ -245,11 +277,14 @@ export async function fetchContentfulPosts(): Promise<UnifiedPost[]> {
   try {
     const entries = await client.getEntries({
       content_type: 'post',
-      order: '-sys.createdAt',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      order: '-sys.createdAt' as any,
       include: 2, // Asset과 참조 해결을 위해 include 레벨 설정
     })
 
-    return entries.items.map(transformContentfulPost)
+    return entries.items.map((entry) =>
+      transformContentfulPost(entry as unknown as Entry<ContentfulPostSkeleton>)
+    )
   } catch (error) {
     console.error('Contentful 데이터 fetch 오류:', error)
     return []

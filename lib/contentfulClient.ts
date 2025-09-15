@@ -2,8 +2,8 @@
 import { createClient } from 'contentful'
 
 // .env.local 파일에 저장한 키들을 불러옵니다.
-const spaceId = process.env.CONTENTFUL_SPACE_ID
-const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN
+const spaceId = process.env.CONTENTFUL_SPACE_ID!
+const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN!
 
 // Contentful 클라이언트를 생성합니다.
 const client = createClient({

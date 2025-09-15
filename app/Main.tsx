@@ -5,7 +5,9 @@ import { formatDate } from 'pliny/utils/formatDate'
 
 const MAX_DISPLAY = 12
 
-export default function Home({ posts }) {
+export default function Home({ posts, contentfulPosts = [] }) {
+  console.log('Main 컴포넌트 - Contentful 글 수:', contentfulPosts?.length || 0)
+
   // posts 배열이 없거나 빈 경우 처리
   if (!posts || posts.length === 0) {
     return (
@@ -172,6 +174,46 @@ export default function Home({ posts }) {
           </div>
         </div>
       </div>
+
+      {/* Contentful 데이터 섹션 */}
+      {contentfulPosts && contentfulPosts.length > 0 ? (
+        <div className="bg-blue-50 py-12 dark:bg-blue-900/20">
+          <div className="mx-auto max-w-7xl px-4">
+            <h2 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white">
+              Contentful 뉴스
+            </h2>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {contentfulPosts.map((post) => (
+                <article
+                  key={post.sys.id}
+                  className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800"
+                >
+                  <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+                    {post.fields.title}
+                  </h3>
+                  {post.fields.excerpt && (
+                    <p className="text-gray-600 dark:text-gray-300">{post.fields.excerpt}</p>
+                  )}
+                  <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+                    발행일: {new Date(post.sys.createdAt).toLocaleDateString('ko-KR')}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-yellow-50 py-8 dark:bg-yellow-900/20">
+          <div className="mx-auto max-w-7xl px-4 text-center">
+            <h2 className="text-xl text-gray-600 dark:text-gray-300">
+              Contentful 데이터가 없거나 로딩 중입니다.
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              contentfulPosts 길이: {contentfulPosts?.length || 0}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

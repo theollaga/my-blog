@@ -5,7 +5,31 @@ import { formatDate } from 'pliny/utils/formatDate'
 
 const MAX_DISPLAY = 12
 
-export default function Home({ posts, contentfulPosts = [] }) {
+interface BlogPost {
+  slug: string
+  title: string
+  date?: string
+  [key: string]: unknown
+}
+
+interface ContentfulPost {
+  sys: {
+    id: string
+    createdAt: string
+  }
+  fields: {
+    title: string
+    excerpt?: string
+    [key: string]: unknown
+  }
+}
+
+interface MainProps {
+  posts: BlogPost[]
+  contentfulPosts?: ContentfulPost[]
+}
+
+export default function Home({ posts, contentfulPosts = [] }: MainProps) {
   console.log('Main 컴포넌트 - Contentful 글 수:', contentfulPosts?.length || 0)
 
   // posts 배열이 없거나 빈 경우 처리

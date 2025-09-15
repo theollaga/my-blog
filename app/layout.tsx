@@ -25,17 +25,39 @@ export const metadata: Metadata = {
     template: `%s | ${siteMetadata.title}`,
   },
   description: siteMetadata.description,
+  keywords: [
+    '뉴스',
+    '최신뉴스',
+    '정치',
+    '경제',
+    '사회',
+    '문화',
+    'IT',
+    '기술',
+    '트렌드',
+    '종합뉴스',
+  ],
+  authors: [{ name: siteMetadata.author }],
+  creator: siteMetadata.author,
+  publisher: siteMetadata.title,
   openGraph: {
     title: siteMetadata.title,
     description: siteMetadata.description,
-    url: './',
+    url: siteMetadata.siteUrl,
     siteName: siteMetadata.title,
-    images: [siteMetadata.socialBanner],
-    locale: 'en_US',
+    images: [
+      {
+        url: siteMetadata.socialBanner,
+        width: 1200,
+        height: 630,
+        alt: siteMetadata.title,
+      },
+    ],
+    locale: siteMetadata.locale,
     type: 'website',
   },
   alternates: {
-    canonical: './',
+    canonical: siteMetadata.siteUrl,
     types: {
       'application/rss+xml': `${siteMetadata.siteUrl}/feed.xml`,
     },
@@ -53,9 +75,16 @@ export const metadata: Metadata = {
   },
   twitter: {
     title: siteMetadata.title,
+    description: siteMetadata.description,
     card: 'summary_large_image',
     images: [siteMetadata.socialBanner],
+    creator: '@newsball',
   },
+  verification: {
+    google: process.env.GOOGLE_VERIFICATION_ID,
+  },
+  category: 'news',
+  classification: 'News and Media',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -93,8 +122,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <meta name="msapplication-TileColor" content="#000000" />
       <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff" />
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000" />
+      <meta name="format-detection" content="telephone=no" />
+      <meta name="mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       <link rel="alternate" type="application/rss+xml" href={`${basePath}/feed.xml`} />
-      <body className="bg-white pl-[calc(100vw-100%)] text-black antialiased dark:bg-gray-950 dark:text-white">
+      <link rel="sitemap" type="application/xml" href={`${basePath}/sitemap.xml`} />
+      {siteMetadata.adsense?.adClient && (
+        <script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${siteMetadata.adsense.adClient}`}
+          crossOrigin="anonymous"
+        />
+      )}
+      <body className="bg-gray-50 pl-[calc(100vw-100%)] text-black antialiased dark:bg-gray-950 dark:text-white">
         <ThemeProviders>
           <Analytics analyticsConfig={siteMetadata.analytics as AnalyticsConfig} />
           <SectionContainer>

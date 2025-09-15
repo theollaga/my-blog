@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /private/
+Disallow: /_next/
+Disallow: /api/
+
+# Google AdSense
+User-agent: Mediapartners-Google
+Allow: /
+
+# Google bot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://your-domain.com/sitemap.xml
+Sitemap: https://your-domain.com/sitemap-0.xml
+
+# Allow all bots to access important pages
+Allow: /blog/
+Allow: /tags/
+Allow: /about/
+Allow: /feed.xml

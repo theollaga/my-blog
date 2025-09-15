@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm run lint)",
+      "WebFetch(domain:econmingle.com)",
+      "WebFetch(domain:www.genspark.ai)",
+      "Bash(npm run build:*)",
+      "Bash(npx prettier:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

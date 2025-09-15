@@ -1,9 +1,10 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
-  title: '세상 정보의 중심 - 뉴스볼',
+  title: '뉴스볼 - 세상의 모든 뉴스와 정보',
   author: 'The Ollaga',
-  headerTitle: 'Newsbowl',
-  description: '애드센스 수익을 위한 뉴스블로그 테스트 사이트입니다.',
+  headerTitle: '뉴스볼',
+  description:
+    '최신 뉴스, 트렌드, 기술 정보를 빠르고 정확하게 전달하는 종합 뉴스 플랫폼입니다. 정치, 경제, 사회, 문화, IT 등 다양한 분야의 신뢰할 수 있는 뉴스를 제공합니다.',
   language: 'ko-kr',
   theme: 'system', // system, dark or light
   siteUrl: 'https://tailwind-nextjs-starter-blog.vercel.app',
@@ -45,9 +46,18 @@ const siteMetadata = {
     // posthogAnalytics: {
     //   posthogProjectApiKey: '', // e.g. 123e4567-e89b-12d3-a456-426614174000
     // },
-    // googleAnalytics: {
-    //   googleAnalyticsId: '', // e.g. G-XXXXXXX
-    // },
+    googleAnalytics: {
+      googleAnalyticsId: process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID, // e.g. G-XXXXXXX
+    },
+  },
+  adsense: {
+    adClient: process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID, // e.g. ca-pub-xxxxxxxxxxxxxxxxx
+    adSlots: {
+      header: process.env.NEXT_PUBLIC_ADSENSE_SLOT_HEADER,
+      sidebar: process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR,
+      article: process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE,
+      footer: process.env.NEXT_PUBLIC_ADSENSE_SLOT_FOOTER,
+    },
   },
   newsletter: {
     // supports mailchimp, buttondown, convertkit, klaviyo, revue, emailoctopus, beehive

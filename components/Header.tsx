@@ -7,46 +7,76 @@ import ThemeSwitch from './ThemeSwitch'
 import SearchButton from './SearchButton'
 
 const Header = () => {
-  let headerClass = 'flex items-center w-full bg-white dark:bg-gray-950 justify-between py-10'
-  if (siteMetadata.stickyNav) {
-    headerClass += ' sticky top-0 z-50'
-  }
+  const categories = [
+    { name: '경제', href: '/tags/economy' },
+    { name: '자동차', href: '/tags/automotive' },
+    { name: '정치', href: '/tags/politics' },
+    { name: '사회', href: '/tags/society' },
+    { name: '문화', href: '/tags/culture' },
+    { name: '기술', href: '/tags/tech' },
+  ]
 
   return (
-    <header className={headerClass}>
-      <Link href="/" aria-label={siteMetadata.headerTitle}>
-        <div className="flex items-center justify-between">
-          <div className="mr-3">
-            <Logo />
-          </div>
-          {typeof siteMetadata.headerTitle === 'string' ? (
-            <div className="hidden h-6 text-2xl font-semibold sm:block">
-              {siteMetadata.headerTitle}
+    <>
+      {/* 상단 헤더 */}
+      <header className="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="flex items-center justify-between py-4">
+            {/* 로고 */}
+            <Link href="/" aria-label={siteMetadata.headerTitle}>
+              <div className="flex items-center">
+                <div className="mr-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-600">
+                    <span className="text-sm font-bold text-white">🏢</span>
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">이코노믹글</div>
+              </div>
+            </Link>
+
+            {/* 우측 유틸리티 */}
+            <div className="flex items-center space-x-4">
+              <SearchButton />
+              <ThemeSwitch />
+              <div className="hidden space-x-4 text-sm sm:flex">
+                <span className="text-gray-500 dark:text-gray-400">광고</span>
+                <span className="text-gray-500 dark:text-gray-400">구독자</span>
+              </div>
+              <MobileNav />
             </div>
-          ) : (
-            siteMetadata.headerTitle
-          )}
+          </div>
         </div>
-      </Link>
-      <div className="flex items-center space-x-4 leading-5 sm:-mr-6 sm:space-x-6">
-        <div className="no-scrollbar hidden max-w-40 items-center gap-x-4 overflow-x-auto sm:flex md:max-w-72 lg:max-w-96">
-          {headerNavLinks
-            .filter((link) => link.href !== '/')
-            .map((link) => (
-              <Link
-                key={link.title}
-                href={link.href}
-                className="hover:text-primary-500 dark:hover:text-primary-400 m-1 font-medium text-gray-900 dark:text-gray-100"
-              >
-                {link.title}
-              </Link>
-            ))}
+      </header>
+
+      {/* 네비게이션 메뉴 */}
+      <nav className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="flex items-center justify-between py-3">
+            <div className="flex space-x-8">
+              {categories.map((category) => (
+                <Link
+                  key={category.name}
+                  href={category.href}
+                  className="text-sm font-medium text-gray-700 transition-colors hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                >
+                  {category.name}
+                </Link>
+              ))}
+            </div>
+            <div className="hidden text-sm text-gray-500 md:flex dark:text-gray-400">
+              <span>
+                {new Date().toLocaleDateString('ko-KR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  weekday: 'long',
+                })}
+              </span>
+            </div>
+          </div>
         </div>
-        <SearchButton />
-        <ThemeSwitch />
-        <MobileNav />
-      </div>
-    </header>
+      </nav>
+    </>
   )
 }
 

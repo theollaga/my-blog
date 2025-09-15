@@ -1,5 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { withContentlayer } = require('next-contentlayer2')
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 })
@@ -7,13 +9,13 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 // You might need to insert additional domains in script-src if you are using external services
 const ContentSecurityPolicy = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' giscus.app analytics.umami.is;
-  style-src 'self' 'unsafe-inline';
-  img-src * blob: data:;
+  script-src 'self' 'unsafe-eval' 'unsafe-inline' giscus.app analytics.umami.is *.googletagmanager.com *.google.com *.googlesyndication.com *.gstatic.com;
+  style-src 'self' 'unsafe-inline' *.googleapis.com;
+  img-src * blob: data: *.googleusercontent.com *.gstatic.com *.google.com;
   media-src *.s3.amazonaws.com;
-  connect-src *;
-  font-src 'self';
-  frame-src giscus.app
+  connect-src * *.google-analytics.com *.analytics.google.com *.googletagmanager.com;
+  font-src 'self' *.googleapis.com *.gstatic.com;
+  frame-src giscus.app *.googlesyndication.com *.google.com
 `
 
 const securityHeaders = [
@@ -52,6 +54,11 @@ const securityHeaders = [
     key: 'Permissions-Policy',
     value: 'camera=(), microphone=(), geolocation=()',
   },
+  // Performance optimization headers
+  {
+    key: 'Cache-Control',
+    value: 'public, max-age=31536000, immutable',
+  },
 ]
 
 const output = process.env.EXPORT ? 'export' : undefined
@@ -79,8 +86,16 @@ module.exports = () => {
           hostname: 'picsum.photos',
         },
       ],
+      formats: ['image/avif', 'image/webp'],
+      deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+      imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
       unoptimized,
     },
+    experimental: {
+      optimizeCss: false,
+    },
+    compress: true,
+    poweredByHeader: false,
     async headers() {
       return [
         {

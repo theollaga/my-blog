@@ -1,17 +1,28 @@
 import { UnifiedPost } from '@/lib/unifiedContent'
 import PostCard from '@/components/PostCard'
+import PostCardSimple from '@/components/PostCardSimple'
 
 interface UnifiedMainProps {
   posts: UnifiedPost[]
 }
 
 export default function UnifiedMain({ posts }: UnifiedMainProps) {
+  console.log('UnifiedMain - posts:', posts)
+  console.log('UnifiedMain - posts length:', posts?.length)
+
   if (!posts || posts.length === 0) {
     return (
       <div className="bg-white dark:bg-gray-900">
         <div className="mx-auto max-w-7xl px-4 py-12">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Loading...</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Posts: {posts ? posts.length : 'null'} - Loading...
+            </h1>
+            <div className="mx-auto mt-4 max-w-md text-left">
+              <pre className="rounded bg-gray-100 p-4 text-xs">
+                {JSON.stringify(posts, null, 2)}
+              </pre>
+            </div>
           </div>
         </div>
       </div>
@@ -20,7 +31,7 @@ export default function UnifiedMain({ posts }: UnifiedMainProps) {
 
   return (
     <div className="bg-white dark:bg-gray-900">
-      {/* 메인 히어로 섹션 - 1개 큰 카드 + 2개 작은 카드 */}
+      {/* 메인 히어로 섹션 */}
       <div className="bg-white py-8 dark:bg-gray-900">
         <div className="mx-auto max-w-7xl px-4">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -29,8 +40,8 @@ export default function UnifiedMain({ posts }: UnifiedMainProps) {
 
             {/* 우측 작은 카드들 */}
             <div className="space-y-6">
-              {posts[1] && <PostCard post={posts[1]} variant="featured" />}
-              {posts[2] && <PostCard post={posts[2]} variant="featured" />}
+              {posts[1] && <PostCardSimple post={posts[1]} variant="featured" />}
+              {posts[2] && <PostCardSimple post={posts[2]} variant="featured" />}
             </div>
           </div>
         </div>

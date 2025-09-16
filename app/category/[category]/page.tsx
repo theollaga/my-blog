@@ -3,7 +3,8 @@ import { getPostsByCategory, getAllUnifiedPosts } from '@/lib/unifiedContent'
 import UnifiedListLayout from '@/layouts/UnifiedListLayout'
 import { notFound } from 'next/navigation'
 
-// Edge Runtime 제거 - Cloudflare 배포를 위해 기본 Node.js Runtime 사용
+// Edge Runtime 추가 - Cloudflare 배포 요구사항
+export const runtime = 'edge'
 
 // 카테고리 매핑
 const categoryMapping: Record<string, string> = {

@@ -4,7 +4,9 @@ import UnifiedListLayout from '@/layouts/UnifiedListLayout'
 
 const POSTS_PER_PAGE = 5
 
-// Edge Runtime 제거 - Cloudflare 배포를 위해 기본 Node.js Runtime 사용
+// Edge Runtime 추가 - Cloudflare 배포 요구사항
+export const runtime = 'edge'
+
 export const metadata = genPageMetadata({ title: 'Blog' })
 
 export default async function BlogPage(props: { searchParams: Promise<{ page?: string }> }) {

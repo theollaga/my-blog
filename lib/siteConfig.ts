@@ -1,6 +1,4 @@
-import fs from 'fs'
-import path from 'path'
-
+// Edge Runtime 호환 - fs 모듈 사용 안함
 export interface SiteConfig {
   site: {
     title: string
@@ -43,18 +41,18 @@ export interface SiteConfig {
   }
 }
 
-const configPath = path.join(process.cwd(), 'config', 'site-config.json')
-
-// 기본 설정
+// 기본 설정 (Edge Runtime 호환)
 const defaultConfig: SiteConfig = {
   site: {
-    title: '뉴스볼 - 세상의 모든 뉴스와 정보',
-    description: '최신 뉴스, 트렌드, 기술 정보를 빠르고 정확하게 전달하는 종합 뉴스 플랫폼입니다.',
-    author: 'The Ollaga',
-    headerTitle: '이코노믹글',
-    language: 'ko-kr',
-    locale: 'ko-kr',
-    siteUrl: 'https://tailwind-nextjs-starter-blog.vercel.app',
+    title: process.env.SITE_TITLE || '뉴스볼 - 세상의 모든 뉴스와 정보',
+    description:
+      process.env.SITE_DESCRIPTION ||
+      '최신 뉴스, 트렌드, 기술 정보를 빠르고 정확하게 전달하는 종합 뉴스 플랫폼입니다.',
+    author: process.env.SITE_AUTHOR || 'The Ollaga',
+    headerTitle: process.env.SITE_HEADER_TITLE || '이코노믹글',
+    language: process.env.SITE_LANGUAGE || 'ko-kr',
+    locale: process.env.SITE_LOCALE || 'ko-kr',
+    siteUrl: process.env.SITE_URL || 'https://tailwind-nextjs-starter-blog.vercel.app',
   },
   categories: [
     { id: 'economy', name: '경제', slug: 'economy', description: '경제 관련 뉴스와 정보' },
@@ -65,7 +63,7 @@ const defaultConfig: SiteConfig = {
     { id: 'tech', name: '기술', slug: 'tech', description: '기술, IT, 개발 관련 뉴스' },
   ],
   footer: {
-    text: '© 2024 뉴스볼. 모든 권리 보유.',
+    text: process.env.FOOTER_TEXT || '© 2024 뉴스볼. 모든 권리 보유.',
     links: [
       { name: '회사소개', url: '/about' },
       { name: '이용약관', url: '/terms' },
@@ -79,60 +77,31 @@ const defaultConfig: SiteConfig = {
     ],
   },
   company: {
-    address: '서울특별시 구로구 구로동 197-17',
-    phone: '070-8065-3076',
-    name: '주식회사 파팩스',
-    publication: '이코노믹글',
-    registrationNumber: '서울, 아05580',
-    registrationDate: '2024-08-11',
-    publicationDate: '2023-11-12',
-    editorInChief: '김광호',
-    youthProtectionOfficer: '김광호',
-    contactEmail: 'info@econmingle.com',
+    address: process.env.COMPANY_ADDRESS || '서울특별시 구로구 구로동 197-17',
+    phone: process.env.COMPANY_PHONE || '070-8065-3076',
+    name: process.env.COMPANY_NAME || '주식회사 파팩스',
+    publication: process.env.COMPANY_PUBLICATION || '이코노믹글',
+    registrationNumber: process.env.COMPANY_REG_NUMBER || '서울, 아05580',
+    registrationDate: process.env.COMPANY_REG_DATE || '2024-08-11',
+    publicationDate: process.env.COMPANY_PUB_DATE || '2023-11-12',
+    editorInChief: process.env.COMPANY_EDITOR || '김광호',
+    youthProtectionOfficer: process.env.COMPANY_YOUTH_OFFICER || '김광호',
+    contactEmail: process.env.COMPANY_EMAIL || 'info@econmingle.com',
   },
 }
 
-// 설정 디렉토리 생성
-function ensureConfigDir() {
-  const configDir = path.dirname(configPath)
-  if (!fs.existsSync(configDir)) {
-    fs.mkdirSync(configDir, { recursive: true })
-  }
-}
-
-// 설정 파일 로드
+// 설정 로드 (Edge Runtime 호환)
 export function loadSiteConfig(): SiteConfig {
-  try {
-    ensureConfigDir()
-
-    if (fs.existsSync(configPath)) {
-      const configData = fs.readFileSync(configPath, 'utf-8')
-      const parsedConfig = JSON.parse(configData)
-      // 기본 설정과 병합하여 누락된 필드 보완
-      return {
-        ...defaultConfig,
-        ...parsedConfig,
-        site: { ...defaultConfig.site, ...parsedConfig.site },
-        footer: { ...defaultConfig.footer, ...parsedConfig.footer },
-      }
-    } else {
-      // 설정 파일이 없으면 기본 설정으로 생성
-      saveSiteConfig(defaultConfig)
-      return defaultConfig
-    }
-  } catch (error) {
-    console.error('설정 파일 로드 오류:', error)
-    return defaultConfig
-  }
+  return defaultConfig
 }
 
-// 설정 파일 저장
+// 설정 저장 (Edge Runtime 호환 - 메모리에만 저장)
+let runtimeConfig: SiteConfig = defaultConfig
+
 export function saveSiteConfig(config: SiteConfig): void {
-  try {
-    ensureConfigDir()
-    fs.writeFileSync(configPath, JSON.stringify(config, null, 2), { encoding: 'utf8' })
-  } catch (error) {
-    console.error('설정 파일 저장 오류:', error)
-    throw error
-  }
+  runtimeConfig = { ...config }
+}
+
+export function getRuntimeConfig(): SiteConfig {
+  return runtimeConfig
 }

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { loadSiteConfig, saveSiteConfig } from '@/lib/siteConfig'
+import { loadSiteConfig, saveSiteConfig, getRuntimeConfig } from '@/lib/siteConfig'
 
-// Edge Runtime에서는 fs 모듈을 사용할 수 없으므로 기본 Node.js 런타임 사용
+// Edge Runtime 추가 - Cloudflare 배포 요구사항
+export const runtime = 'edge'
 
 // GET: 설정 조회
 export async function GET() {
   try {
-    const config = loadSiteConfig()
+    const config = getRuntimeConfig()
     return NextResponse.json(config)
   } catch (error) {
     console.error('설정 조회 오류:', error)

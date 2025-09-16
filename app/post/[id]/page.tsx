@@ -5,6 +5,8 @@ import siteMetadata from '@/data/siteMetadata'
 import { Entry, EntrySkeletonType } from 'contentful'
 import Image from 'next/image'
 
+// Edge Runtime 제거 - Cloudflare 배포를 위해 기본 Node.js Runtime 사용
+
 // Contentful Rich Text 노드 타입 정의
 interface RichTextNode {
   nodeType: string

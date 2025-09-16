@@ -3,6 +3,8 @@ import { getPostsByCategory, getAllUnifiedPosts } from '@/lib/unifiedContent'
 import UnifiedListLayout from '@/layouts/UnifiedListLayout'
 import { notFound } from 'next/navigation'
 
+// Edge Runtime 제거 - Cloudflare 배포를 위해 기본 Node.js Runtime 사용
+
 // 카테고리 매핑
 const categoryMapping: Record<string, string> = {
   economy: '경제',
@@ -23,12 +25,8 @@ export async function generateMetadata(props: { params: Promise<{ category: stri
   })
 }
 
-// 정적 경로 생성
-export async function generateStaticParams() {
-  return Object.keys(categoryMapping).map((category) => ({
-    category,
-  }))
-}
+// Edge Runtime에서는 generateStaticParams를 사용할 수 없음
+// 대신 동적 렌더링 사용
 
 export default async function CategoryPage(props: {
   params: Promise<{ category: string }>

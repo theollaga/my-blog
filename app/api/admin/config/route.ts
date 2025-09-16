@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { loadSiteConfig, saveSiteConfig } from '@/lib/siteConfig'
 
+// Edge Runtime에서는 fs 모듈을 사용할 수 없으므로 기본 Node.js 런타임 사용
+
 // GET: 설정 조회
 export async function GET() {
   try {
